@@ -9,7 +9,6 @@ def set_logger(name):
     else:
         log = logging.getLogger(name)
         hdlr = logging.FileHandler('./process.log')
-        print('logg')
         hdlr.setFormatter(
             logging.Formatter(
                 '%(asctime)s - %(levelname)7s - %(message)s', '%Y-%m-%d %H:%M')
