@@ -11,8 +11,6 @@ def main():
     t = process_time()
     processor = Processor()
 
-    # Accept input from two types of sources:
-    # a filename passed in command line arguments or STDIN.
     with open(sys.argv[1], 'r') if len(sys.argv) > 1 else sys.stdin as f:
         for line in f:
             processor.parse_event(line)

@@ -7,12 +7,9 @@ from creditCardSystem.logsModule import set_logger
 
 log = set_logger('logger')
 
-
 class Processor(object):
 
     def __init__(self, *args, **kwargs):
-        """
-        """
         self.db = kwargs.get('db', {})
         if not isinstance(self.db, dict):
             raise TypeError('데이터베이스는 반드시 dictionary 타입이어야 합니다.')
@@ -97,6 +94,7 @@ class Processor(object):
     def add(self, name, card_number, limit):
         """
         새로운 카드 번호를 등록함.
+        카드 번호만 검증.
         카드 번호가 유효한지 luhn 알고리즘을 통해서 검증.
         """
         log.info('신규 카드 등록, 번호:{0}, 이름:{1}, 한도:{2}'.format(card_number, name, limit))
@@ -131,7 +129,6 @@ class Processor(object):
         card_number = account.get('card_number', None)
         limit = account.get('limit', None)
 
-        # check for missing params
         if any(param is None for param in [balance, card_number, limit]):
             raise KeyError((
                 'Missing parameter(s) required for processing charge - '
@@ -142,15 +139,14 @@ class Processor(object):
 
     def charge(self, name, amount):
         """
-        특정 사용자에게 일정 금액을 계좌를 통해서 부과한다.
+        특정 사용자에게 일정 금액(신용카드를 통해서 지불해야 할 금액)을 계좌에 더함.
         카드 번호 유효성을 검증한다.
+
         """
-        log.info('{0}에게 {1}를 부과함'.format(name, amount))
+        log.info('{0}에게 {1}를 더함'.format(name, amount))
         self.check_amount(amount)
         account, balance, card_number, limit = self.get_account_details(name)
 
-        # fast fails if card is not valid so we don't end up
-        # comparing decimal amounts with str for error balances
         if not self.is_luhn_valid(card_number) or amount + balance > limit:
             return balance
 
@@ -158,9 +154,9 @@ class Processor(object):
 
     def credit(self, name, amount):
         """
-        특정 사용자의 계좌에 일정 금액을 보장하여 보전함.
+        특정 사용자의 계좌에 일정 금액(신용카드로 지불한 금액) 뺌.
         """
-        log.info('{0}에게 {1}을 보장함.'.format(name, amount))
+        log.info('{0}에게서 {1}을 뺌.'.format(name, amount))
         self.check_amount(amount)
 
         account, balance, card_number, limit = self.get_account_details(name)

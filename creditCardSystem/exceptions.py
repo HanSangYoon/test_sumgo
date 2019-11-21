@@ -1,4 +1,4 @@
 
 
 class ParseError(Exception):
-    """Generic payload parsing error class."""
+    """파싱 에러 발생함."""
